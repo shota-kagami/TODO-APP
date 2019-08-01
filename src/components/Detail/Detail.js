@@ -7,17 +7,16 @@ import noImage from '../../image/noImage.png';
 const Detail = (props) => {
   const [nowLoading, setNowLoading] = useState(true);
   const [imageSrc, setImageSrc] = useState(noImage);
-
-  const todo = props.location.state.todo.todo;
-  const id = props.location.state.id.id;
+  const [todoDetail, setTodoDetail] = useState(props.location.state.todo);
+  const id = props.location.state.id;
 
   const getImage = async () => {
-    if (todo.image === null || todo.image === "") {
+    if (todoDetail.image === null || todoDetail.image === "") {
       setNowLoading(false);
       return;
     }
 
-    const downloadURL = await FileManager.download(todo.image).catch((error) => {
+    const downloadURL = await FileManager.download(todoDetail.image).catch((error) => {
       setNowLoading(false);
       return;
     });
@@ -35,7 +34,8 @@ const Detail = (props) => {
       {nowLoading ?
         <LoadingIcon /> :
         <DetailContent
-          todo={todo}
+          todo={todoDetail}
+          setTodo={(todo) => setTodoDetail(todo)}
           id={id}
           imageSrc={imageSrc}
         />

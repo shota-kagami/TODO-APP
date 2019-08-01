@@ -10,7 +10,6 @@ import AddUser from './components/AddUser/AddUser.js';
 
 const App = (props) => {
   const showDetail = (props, todo, id) => {
-    console.log(todo, id)
     props.history.push({
       pathname: '/detail',
       state: {

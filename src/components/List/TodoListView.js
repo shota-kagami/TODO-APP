@@ -19,7 +19,7 @@ const TodoListView = (props) => {
               <td align="center">{index + 1}</td>
               <td align="center">{todo.title}</td>
               <td>{todo.description}</td>
-              <td align="center"><button name="detailButton" onClick={() => props.showDetail({todo}, {index})}>詳細</button></td>
+              <td align="center"><button name="detailButton" onClick={() => props.showDetail(todo, index + 1)}>詳細</button></td>
               <td align="center"><button name="deleteButton" onClick={() => props.onDelete(todo.id)}>削除</button></td>
             </tr>
           ))}

@@ -34,6 +34,20 @@ export default class DataManager {
     return todoList;
   }
 
+  static async getOnceTodo(userId, docId) {
+    console.log(userId, docId);
+    const doc = await firebase.firestore()
+                              .collection('todo')
+                              .doc(userId)
+                              .collection('todo')
+                              .doc(docId)
+                              .get();
+
+    let todo = doc.data();
+    todo['id'] = doc.id;
+    return todo;
+  }
+
   static async updateTodo(title, description, filePath, date, userId, docId) {
     const data = {
       "title": title,
