@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import EditTodoForm from './EditTodoForm.js';
 import DataManager from '../../database/DataManager.js';
 import FileManager from '../../file/FileManager.js';
 import AuthManager from '../../auth/AuthManager.js';
-import AddTodoForm from './AddTodoForm.js';
 import LoadingIcon from '../Utility/LoadingIcon.js';
 
-const AddTodo = (props) => {
+const EditTodo = (props) => {
   const [saveError, setSaveError] = useState('');
   const [nowLoading, setNowLoading] = useState(true);
+  const todo = props.location.state.todo;
+  const index = props.location.state.index;
 
-  const saveTodo = async (title, desc, image, isEmptyFile) => {
+  const updateTodo = async (title, desc, image, isEmptyFile) => {
     let filePath = "";
     if (!isEmptyFile) {
       const uploadResult = await FileManager.upload(image, AuthManager.getUserId())
@@ -26,12 +28,13 @@ const AddTodo = (props) => {
 
     setNowLoading(true);
 
-    await DataManager.saveTodo(title, desc, filePath, new Date(), AuthManager.getUserId())
+    await DataManager.updateTodo(title, desc, filePath, new Date(), AuthManager.getUserId(), todo.id)
                      .catch((error) => {
-                       setSaveError("追加に失敗しました。再度お試しください。")
+                       setSaveError("更新に失敗しました。再度お試しください。")
+                       return;
                      });
 
-    setNowLoading(false);
+    props.showDetail(todo.id, index);
   }
 
   const setUploadError = (error) => {
@@ -60,14 +63,13 @@ const AddTodo = (props) => {
   return (
     <span>
       {nowLoading ?
+        <LoadingIcon />:
         <span>
-          <LoadingIcon />
-        </span>:
-        <span>
-          <h1>新規追加画面</h1>
+          <h1>詳細編集画面</h1>
           <p><font color="red">{saveError}</font></p>
-          <AddTodoForm
-            saveTodo={(title, desc, image, isEmptyFile) => saveTodo(title, desc, image, isEmptyFile)}
+          <EditTodoForm
+            todo={todo}
+            updateTodo={(title, desc, image, isEmptyFile) => updateTodo(title, desc, image, isEmptyFile)}
           />
         </span>
       }
@@ -75,4 +77,4 @@ const AddTodo = (props) => {
   );
 }
 
-export default AddTodo;
+export default EditTodo;

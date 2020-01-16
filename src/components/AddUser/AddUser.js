@@ -99,7 +99,7 @@ const AddUser = (props) => {
                           value={email}
                           onChange={(e) => {
                             setEmailError("");
-                            setEmail(e.target.value)
+                            setEmail(e.target.value);
                           }}
                          />
             <font color="red">{emailError}</font>
@@ -112,7 +112,7 @@ const AddUser = (props) => {
                           value={password}
                           onChange={(e) => {
                             setPasswordError("");
-                            setPassword(e.target.value)
+                            setPassword(e.target.value);
                           }}
                         />
            <font color="red">{passwordError}</font>

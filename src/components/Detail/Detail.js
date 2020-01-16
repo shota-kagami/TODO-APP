@@ -1,43 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import DetailContent from './DetailContent.js';
+import DetailView from './DetailView.js';
 import LoadingIcon from '../Utility/LoadingIcon.js';
+import AuthManager from '../../auth/AuthManager.js';
 import FileManager from '../../file/FileManager.js';
+import DataManager from '../../database/DataManager.js';
 import noImage from '../../image/noImage.png';
 
 const Detail = (props) => {
+  const [todo, setTodo] = useState('');
   const [nowLoading, setNowLoading] = useState(true);
   const [imageSrc, setImageSrc] = useState(noImage);
-  const [todoDetail, setTodoDetail] = useState(props.location.state.todo);
-  const id = props.location.state.id;
+  const todoId = props.location.state.id;
+  const index = props.location.state.index;
 
-  const getImage = async () => {
-    if (todoDetail.image === null || todoDetail.image === "") {
-      setNowLoading(false);
-      return;
-    }
+  const getTodo = async () => {
+    const todo = await DataManager.getOnceTodo(AuthManager.getUserId(), todoId);
+    const imageSource = await getImage(todo.image);
 
-    const downloadURL = await FileManager.download(todoDetail.image).catch((error) => {
-      setNowLoading(false);
-      return;
-    });
+    setTodo(todo);
+    if (!imageSource === null) setImageSrc(imageSource);
 
-    setImageSrc(downloadURL);
     setNowLoading(false);
   }
 
+  const getImage = async (image) => {
+    if (image === null || image === "") {
+      return null;
+    }
+
+    const downloadURL = await FileManager.download(image).catch((error) => {
+      return null;
+    });
+
+    return downloadURL;
+  }
+
   useEffect(() => {
-    getImage();
+    getTodo();
   }, []);
 
   return (
     <span>
       {nowLoading ?
         <LoadingIcon /> :
-        <DetailContent
-          todo={todoDetail}
-          setTodo={(todo) => setTodoDetail(todo)}
-          id={id}
+        <DetailView
+          todo={todo}
+          index={index}
           imageSrc={imageSrc}
+          onEditTodo={() => props.onEditTodo(todo, index)}
         />
       }
     </span>

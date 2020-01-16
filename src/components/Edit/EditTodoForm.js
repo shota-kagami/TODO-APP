@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import checkInput from '../Utility/InputValidator.js';
 
-const AddTodoForm = (props) => {
+const EditTodo = (props) => {
+  const todo = props.todo;
   //入力内容保持用State
-  const [todoTitle, setTodoTitle] = useState('');
-  const [todoDescription, setTodoDescription] = useState('');
-  const [todoImage, setTodoImage] = useState(null);
+  const [todoTitle, setTodoTitle] = useState(todo.title);
+  const [todoDescription, setTodoDescription] = useState(todo.description);
+  const [todoImage, setTodoImage] = useState('');
   //エラーメッセージ表示用State
   const [titleError, setTitleError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
@@ -21,8 +22,8 @@ const AddTodoForm = (props) => {
       return;
     }
 
-    //エラーがなければ登録処理へ
-    props.saveTodo(todoTitle, todoDescription, todoImage, inputCheckResult.emptyFile);
+    //エラーがなければ更新処理へ
+    props.updateTodo(todoTitle, todoDescription, todoImage, inputCheckResult.emptyFile);
   }
 
   const isExistsError = (result) => {
@@ -84,11 +85,11 @@ const AddTodoForm = (props) => {
           <font color="red">&emsp;{fileError}</font>
         </div>
         <div style={{margin: "20px 0px"}}>
-          <button type="submit">登録</button>
+          <button type="submit">更新</button>&emsp;
         </div>
       </form>
     </span>
   )
 }
 
-export default AddTodoForm;
+export default EditTodo;

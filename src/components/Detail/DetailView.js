@@ -1,13 +1,12 @@
 import React from 'react';
 
 const DetailView = (props) => {
-  console.log(props.todo);
   return(
     <span>
       <h1>詳細画面</h1>
       <div>
         <div>
-          TODO ID : {props.id}
+          TODO ID : {props.index}
         </div>
         <div>
           TODO タイトル
@@ -29,7 +28,7 @@ const DetailView = (props) => {
         </div>
       </div>
       <div>
-        <button onClick={() => props.changeEditMode()}>編集</button>
+        <button onClick={() => props.onEditTodo()}>編集</button>
       </div>
     </span>
   )

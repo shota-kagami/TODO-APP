@@ -1,5 +1,6 @@
 import React from 'react';
 
+//TODO追加、更新等の入力チェック
 const checkInput = (todoTitle, todoDescription, todoImage) => {
   let inputInfo = {
     emptyTitle: false,

@@ -35,7 +35,6 @@ export default class DataManager {
   }
 
   static async getOnceTodo(userId, docId) {
-    console.log(userId, docId);
     const doc = await firebase.firestore()
                               .collection('todo')
                               .doc(userId)

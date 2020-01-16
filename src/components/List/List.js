@@ -64,7 +64,7 @@ const List = (props) => {
             />
             <TodoListView
               list={todoList}
-              showDetail={(todo, index) => props.showDetail(todo, index)}
+              showDetail={(id, index) => props.showDetail(id, index)}
               onDelete={(id) => deleteTodo(id)}
             />
           </div>
