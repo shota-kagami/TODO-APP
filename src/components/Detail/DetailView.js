@@ -28,7 +28,7 @@ const DetailView = (props) => {
         </div>
       </div>
       <div>
-        <button>編集</button>
+        <button onClick={() => props.editStart(props.todo)}>編集</button>
       </div>
     </span>
   )

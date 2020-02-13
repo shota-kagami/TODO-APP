@@ -1,39 +1,38 @@
 import React, { useState } from 'react';
 import ValidateTodoInput from '../Utility/TodoInputValidator.js';
 
-const AddTodoForm = (props) => {
+const EditTodoForm = (props) => {
   //state
-  const [todoTitle, setTodoTitle] = useState('');
-  const [todoDescription, setTodoDescription] = useState('');
+  const [todoTitle, setTodoTitle] = useState(props.todo.title);
+  const [todoDescription, setTodoDescription] = useState(props.todo.description);
   const [todoImage, setTodoImage] = useState(null);
   const [inputErrors, setInputErrors] = useState({"titleError": "", "descError": "", "imageError": ""});
 
-  const trySaveTodo = (e) => {
+  const tryUpdateTodo = async (e) => {
     e.preventDefault();
 
-    //必須項目が空またはファイルが画像以外の場合登録処理を行わない
+    //入力内容が有効でない場合は更新処理を行わない
     const errors = ValidateTodoInput(todoTitle, todoDescription, todoImage);
-    if (!(errors === null)) {
-      setInputErrors(errors);
-      return;
+    if (!(errors === null)){
+        setInputErrors(errors);
+        return;
     }
 
-    //エラーがなければ登録処理へ
     const todoInfo = {
-      "title" : todoTitle
-      ,"description" : todoDescription
-      ,"imageFile" : todoImage
-      ,"date" : new Date()
+        "title" : todoTitle
+        ,"description" : todoDescription
+        ,"imageFile" : todoImage
+        ,"date" : new Date()
     }
 
-    props.saveTodo(todoInfo);
+    props.updateTodo(todoInfo);
   }
 
-  return(
+  return (
     <span>
-      <form onSubmit={(e) => trySaveTodo(e)}>
+      <form onSubmit={(e) => tryUpdateTodo(e)}>
         <div>
-          <p style={{margin: "20px 5px 0px 0px"}}>タイトル</p>
+          <p style={{margin: "10px 0px"}}>TODO タイトル : <font color="red">{inputErrors.titleError}</font></p>
           <input
             type="text"
             name="title"
@@ -47,10 +46,9 @@ const AddTodoForm = (props) => {
               }
             }}
           />
-          <font color="red">&emsp;{inputErrors.titleError}</font>
         </div>
         <div>
-          <p style={{margin: "20px 5px 0px 0px"}}>説明</p>
+          <p style={{margin: "10px 0px"}}>TODO 説明 : <font color="red">{inputErrors.descError}</font></p>
           <textarea
             name="description"
             rows="8"
@@ -60,16 +58,15 @@ const AddTodoForm = (props) => {
               setTodoDescription(e.target.value);
               if (!(inputErrors.descError === "")) {
                 setInputErrors((prev) => {
-                  return {...prev, descError : ""};
+                  return {...prev, descError : ""}
                 });
-              };
+              }
             }}
           >
           </textarea>
-          <font color="red">&emsp;{inputErrors.descError}</font>
         </div>
         <div>
-          <p style={{margin: "20px 5px 0px 0px"}}>画像登録</p>
+          <p style={{margin: "10px 0px"}}>画像登録 : <font color="red">{inputErrors.imageError}</font></p>
           <input
             type="file"
             name="image"
@@ -82,14 +79,14 @@ const AddTodoForm = (props) => {
               }
             }}
           />
-          <font color="red">&emsp;{inputErrors.imageError}</font>
         </div>
-        <div style={{margin: "20px 0px"}}>
-          <button type="submit">登録</button>
+        <div style={{margin: "10px 0px"}}>
+          <button type="submit">登録</button> &nbsp;
+          <button type="button" onClick={() => props.editCancel(props.todo)}>キャンセル</button>
         </div>
       </form>
     </span>
-  )
+  );
 }
 
-export default AddTodoForm;
+export default EditTodoForm;

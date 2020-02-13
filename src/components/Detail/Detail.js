@@ -34,6 +34,7 @@ const Detail = (props) => {
         <DetailView
           todo={todo}
           imageSrc={imageSrc}
+          editStart={(todo) => props.editStart(todo)}
         />
       }
     </span>

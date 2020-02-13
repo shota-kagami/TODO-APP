@@ -11,14 +11,13 @@ const List = (props) => {
   const [nowLoading, setNowLoading] = useState(true);
 
   const getTodo = async () => {
-    let errorInfo;
     const allTodoList = await DataManager.getTodo(AuthManager.getUserId()).catch((error) => {
-      errorInfo = error;
+      setErrorMessage(error.code);
+      console.log(error);
       return null;
     });
 
     if (allTodoList === null) {
-      //TODO エラー表示
       return;
     }
 
@@ -27,6 +26,7 @@ const List = (props) => {
     setNowLoading(false);
   }
 
+  //検索(部分一致)
   const searchTodo = (e, title, description) => {
     e.preventDefault();
 
@@ -35,14 +35,16 @@ const List = (props) => {
     }));
   }
 
+  //削除
   const deleteTodo = async (id) => {
     setNowLoading(true);
     
-    const result = await DataManager.deleteTodo(AuthManager.getUserId(), id);
+    await DataManager.deleteTodo(AuthManager.getUserId(), id);
 
     getTodo();
   }
 
+  //検索文字列が含まれるかどうか
   const existsWord = (target, searchWord) => {
     if (searchWord === null || searchWord === "") return true;
 
@@ -50,9 +52,16 @@ const List = (props) => {
     return (regexp.test(target));
   }
 
+  //firebaseからのエラーコードをもとにメッセージを表示
+  const setErrorMessage = () => {
+    //reference見つからんので後で
+  }
+
   useEffect(() => {
     getTodo();
   }, [])
+
+  console.log(props);
 
   return (
     <span>

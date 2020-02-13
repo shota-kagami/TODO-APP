@@ -1,5 +1,5 @@
 import React from 'react';
-import icon from '../../image/loadingIcon.gif';
+import icon from '../../images/loadingicon.gif';
 
 const LoadingIcon = () => {
   return(

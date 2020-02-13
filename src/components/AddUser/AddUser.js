@@ -1,82 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import AuthManager from '../../auth/AuthManager.js';
 import LoadingIcon from '../Utility/LoadingIcon.js';
+import AddUserForm from './AddUserForm.js';
 
 const AddUser = (props) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [AddError, setAddError] = useState('');
   const [nowLoading, setNowLoading] = useState(true);
 
-  const registUser = async (e) => {
-    e.preventDefault();
+  const addUser = async (email, password) => {
+    setNowLoading(true);
 
-    //入力内容のチェック
-    const emailErrorMessage = checkEmail();
-    const passwordErrorMessage = checkPassword();
+    //ユーザー登録
+    const user = await AuthManager.addUser(email, password).catch((error) => {
+      setErrorMessage(error.code);
+      return null;
+    });
 
-    if (emailErrorMessage === "" && passwordErrorMessage === "") {
-      setNowLoading(true);
-
-      let errorInfo;
-      //ユーザー登録
-      const user = await AuthManager.addUser(email, password).catch((error) => {
-        errorInfo = error;
-        return null;
-      });
-
-      //user情報がNull = 登録に失敗した場合エラーメッセージを表示
-      if (user !== null) {
-        setRegistErrorMessage(errorInfo.code);
-        console.log(errorInfo.code, errorInfo.message);
-      }
-      //ユーザー登録に成功した場合、ユーザーIDをキャッシュに保持
-      else {
-        AuthManager.saveIdInLocalStorage(user.uid);
-        props.history.push("/top");
-      }
-
+    //登録失敗時は画面遷移せずエラーメッセージを表示
+    if (user === null) {
       setNowLoading(false);
+      return;
     }
-    else {
-      setEmailError(emailErrorMessage);
-      setPasswordError(passwordErrorMessage);
-    }
+
+    //登録成功時はトップ画面へ遷移
+    AuthManager.saveIdInLocalStorage(user.uid);
+    props.history.push("/top");
   }
 
-  const checkEmail = () => {
-    //Nullチェック
-    if (email === "" || email === null) return "メールアドレスは必須です";
-
-    //メールアドレスの形式チェック
-    const regex = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/;
-    if (!regex.test(email)) return "メールアドレスの形式に誤りがあります";
-
-    return (emailError === "") ? "" : emailError;
-  }
-
-  const checkPassword = () => {
-    //Nullチェック
-    if (password === "" || password === null) return "パスワードは必須です";
-
-    //パスワードの形式＆形式チェック
-    const regex = /[a-zA-Z0-9]{6,12}/;
-    if (!regex.test(password)) return "パスワードは6文字以上の英数字で入力してください";
-
-    return (passwordError === "") ? "" : passwordError;
-  }
-
-  //サーバー側のエラーメッセージをセット
-  const setRegistErrorMessage = (errorCode) => {
+  //firebaseから返されたエラーコードをもとにエラーメッセージを設定
+  const setErrorMessage = (errorCode) => {
     switch (errorCode) {
       case "auth/email-already-in-use":
-        setEmailError("入力されたメールアドレスは既に登録されています。");
+        setAddError("入力されたメールアドレスは既に登録済みです。");
         break;
       case "auth/invalid-email":
-        setEmailError("入力されたメールアドレスに誤りがあります。");
+        setAddError("入力されたメールアドレスに誤りがあります。");
+        break;
+      case "auth/operation-not-allowed":
+        setAddError("そのユーザーは無効です。");
+        break;
+      case "auth/weak-password":
+        setAddError("パスワードの強度が不足しています。英大文字、小文字、数字を含めて再度お試しください。");
         break;
       default:
+        setAddError("ユーザー登録に失敗しました。再度お試しください。");
         break;
     }
   }
@@ -89,41 +56,19 @@ const AddUser = (props) => {
     <span>
       {nowLoading ?
         <LoadingIcon /> :
-        <form onSubmit={(e) => registUser(e)}>
+        <span>
+          <font color="red">{AddError}</font>
+          <AddUserForm addUser={(email, password) => addUser(email, password)} />
           <div>
-            メールアドレス : <input
-                          autoFocus
-                          noValidate
-                          type="text"
-                          name="email"
-                          value={email}
-                          onChange={(e) => {
-                            setEmailError("");
-                            setEmail(e.target.value)
-                          }}
-                         />
-            <font color="red">{emailError}</font>
+            <button 
+              type="button"
+              id="movePageButton-toLogin"
+              onClick={() => props.history.push('/')}
+            >
+              ログイン画面
+            </button>
           </div>
-          <div>
-            　パスワード　 : <input
-                          noValidate
-                          type="password"
-                          name="password"
-                          value={password}
-                          onChange={(e) => {
-                            setPasswordError("");
-                            setPassword(e.target.value)
-                          }}
-                        />
-           <font color="red">{passwordError}</font>
-          </div>
-          <div>
-            <button type="submit" id="registButton">登録</button>
-          </div>
-          <div>
-            <button type="button" id="movePageButton-toLogin" onClick={() => props.history.push('/')}>ログイン画面</button>
-          </div>
-        </form>
+        </span>
       }
     </span>
   );

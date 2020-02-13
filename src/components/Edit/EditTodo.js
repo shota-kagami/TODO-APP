@@ -2,21 +2,23 @@ import React, { useState, useEffect } from 'react';
 import DataManager from '../../database/DataManager.js';
 import FileManager from '../../file/FileManager.js';
 import AuthManager from '../../auth/AuthManager.js';
-import AddTodoForm from './AddTodoForm.js';
 import LoadingIcon from '../Utility/LoadingIcon.js';
+import EditTodoForm from './EditTodoForm.js';
 
-const AddTodo = (props) => {
-  const [saveError, setSaveError] = useState('');
+const EditTodo = (props) => {
+  //state
+  const [saveError, setSaveError] = useState("");
   const [nowLoading, setNowLoading] = useState(true);
+  const documentId = props.location.state.todo.id;
 
-  const saveTodo = async (todoInfo) => {
+  const updateTodo = async (todoInfo) => {
     setNowLoading(true);
 
+    //画像ファイルが存在する場合アップロード
     let filePath = "";
     if (!(todoInfo.imageFile === null || todoInfo.imageFile === "")) {
-      const uploadResult = await FileManager.upload(todoInfo.imageFile, AuthManager.getUserId())
+      const uploadResult = await FileManager.upload(todoInfo.ImageFile, AuthManager.getUserId())
                                             .catch((error) => {
-                                              console.log(error);
                                               setErrorMessage(error);
                                               setNowLoading(false);
                                               return null;
@@ -28,15 +30,17 @@ const AddTodo = (props) => {
       filePath = uploadResult.metadata.fullPath;
     }
 
-    todoInfo["image"] = filePath;
+    //imageフィールドに保存先パスを代入　※新規選択されなければ保存済みのパスをそのまま入れる
+    todoInfo.image = (filePath === null || filePath === "") ? props.location.state.todo.image : filePath;
     delete todoInfo.imageFile;
-    await DataManager.saveTodo(todoInfo, AuthManager.getUserId())
-                     .catch((error) => {
-                       console.log(error);
-                       setSaveError("追加に失敗しました。再度お試しください。")
+    await DataManager.updateTodo(AuthManager.getUserId(), documentId, todoInfo)
+                     .catch((e) => {
+                       setSaveError("更新に失敗しました。再度お試しください。");
+                       setNowLoading(false);
+                       return;
                      });
 
-    setNowLoading(false);
+    props.editEnd(todoInfo);
   }
 
   const setErrorMessage = (error) => {
@@ -68,12 +72,15 @@ const AddTodo = (props) => {
       {nowLoading ?
         <span>
           <LoadingIcon />
-        </span>:
+        </span>
+        :
         <span>
           <div name="title">新規追加画面</div>
           <p><font color="red">{saveError}</font></p>
-          <AddTodoForm
-            saveTodo={(todoInfo) => saveTodo(todoInfo)}
+          <EditTodoForm
+            todo={props.location.state.todo}
+            updateTodo={(todoInfo) => updateTodo(todoInfo)}
+            editCancel={(beforeEditTodo) => props.editEnd(beforeEditTodo)}
           />
         </span>
       }
@@ -81,4 +88,4 @@ const AddTodo = (props) => {
   );
 }
 
-export default AddTodo;
+export default EditTodo;

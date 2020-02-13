@@ -1,19 +1,12 @@
 import firebase from '../firebase/firebaseInstance.js';
 
 export default class DataManager {
-  static async saveTodo(title, description, filePath, date, userId) {
-    const data = {
-      "title": title,
-      "description": description,
-      "image": filePath,
-      "date": date
-    };
-
+  static async saveTodo(todoInfo, userId) {
     return await firebase.firestore()
                          .collection('todo')
                          .doc(userId)
                          .collection('todo')
-                         .add(data);
+                         .add(todoInfo);
   }
 
   static async getTodo(userId) {
@@ -24,30 +17,23 @@ export default class DataManager {
                          .orderBy('date')
                          .get();
 
-    let todoList = [];
-    snapShot.forEach((doc) => {
+    
+    const todoList = snapShot.docs.map((doc) => {
       let todo = doc.data();
       todo['id'] = doc.id;
-      todoList.push(todo);
+      return todo;
     });
 
     return todoList;
   }
 
-  static async updateTodo(title, description, filePath, date, userId, docId) {
-    const data = {
-      "title": title,
-      "description": description,
-      "image": filePath,
-      "date": date
-    };
-
+  static async updateTodo(userId, documentId, todoInfo) {
     return await firebase.firestore()
                          .collection('todo')
                          .doc(userId)
                          .collection('todo')
-                         .doc(docId)
-                         .update(data);
+                         .doc(documentId)
+                         .update(todoInfo);
   }
 
   static async deleteTodo(userId, documentId) {
